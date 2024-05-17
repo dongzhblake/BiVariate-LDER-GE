@@ -1,19 +1,21 @@
 #' @title Main function
-#' @description Run LDER-GE 
-#' @param assoc GWIS summary statistics, need to include snp, chr, a0, a1, z (header is necessary)
-#' @param n.gwas The sample size of the GWAS summary statistics
+#' @description Run BVLDER-GE 
+#' @param assoc_gwis GWIS (GE interaction effect) summary statistics, need to include snp, chr, a0, a1, z (header is necessary)
+#' @param assoc_gwss GWAS (additive genetic effect) summary statistics, need to include snp, chr, a0, a1, z (header is necessary)
+#' @param n.gwis The sample size of the GWIS (GE interaction effect) summary statistics
+#' @param n.gwas The sample size of the GWAS (additive genetic effect) summary statistics
+#' @param n.overlap The overlap sample size between GWIS and GWAS, default to min(n.gwis, n.gwas)
 #' @param path The path of LD panel directory
-#' @param LD.insample T/F, whether the LD reference is estimated with the GWAS cohort (T) or external reference panel (e.g. 1000 Genome Project) (F)
+#' @param LD.insample T/F, whether the LD reference is estimated with target cohort (T) or external reference panel (e.g. 1000 Genome Project) (F)
 #' @param n.ld The sample size of the LD reference
 #' @param cores The number of cores for computation in parallel
 #' @param method 'lder', 'ldsc', or 'both'
 #' @param size_num Number of blocks for jackknife
-#' @param type if 'jack' then conducts delete-wise block jackknife. if 'none' then does not do inference 
 #' @import  data.table stats utils
 #' @export
 #'
 #'
-runBV_LDER_GE <- function(assoc_gwis, assoc_gwas, n.gwis, n.gwas, n.overlap, path, LD.insample=T,  n.ld,method='lder', type='jack',size_num=200){
+runBV_LDER_GE <- function(assoc_gwis, assoc_gwas, n.gwis, n.gwas, n.overlap=NULL, path, LD.insample=T,  n.ld,method='lder', type='jack',size_num=200){
   library(parallel)
   refo_sts=format_sumstats(assoc_gwis,assoc_gwas)
   assoc1=refo_sts$assoc;assoc2=refo_sts$assoc2
