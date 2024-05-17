@@ -1,7 +1,7 @@
 #' @title Main function
 #' @description Run BVLDER-GE 
 #' @param assoc_gwis GWIS (GE interaction effect) summary statistics, need to include snp, chr, a0, a1, z (header is necessary)
-#' @param assoc_gwss GWAS (additive genetic effect) summary statistics, need to include snp, chr, a0, a1, z (header is necessary)
+#' @param assoc_gwas GWAS (additive genetic effect) summary statistics, need to include snp, chr, a0, a1, z (header is necessary)
 #' @param n.gwis The sample size of the GWIS (GE interaction effect) summary statistics
 #' @param n.gwas The sample size of the GWAS (additive genetic effect) summary statistics
 #' @param n.overlap The overlap sample size between GWIS and GWAS, default to min(n.gwis, n.gwas)
