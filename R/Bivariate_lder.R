@@ -134,8 +134,8 @@ bivariate_lder <- function(bivariate_stats,N1,N2,NS=min(N1,N2),size_num=200,R2=0
     rrho33.jack <- sd(rrho)*sqrt(n.block)*C
     h2_133.jack <- sd(h2_1)*sqrt(n.block)*length(x1)*C^2
     h2_233.jack <- sd(h2_2)*sqrt(n.block)*length(x1)
-    cov_rrhog_h2_1 <- cov(rrhog,h2_1)*length(x1)^2*n.block*C^3
-    return(list(genecov=res$rhog*C,rho=res$rho*C,h2I=res$h2_1*C^2,h2g=res$h2_2,genecov.se=rrhog33.jack,rho.se=rrho33.jack,h2I.se=h2_133.jack,h2g.se=h2_233.jack,cov_rrhog_h2_1=cov_rrhog_h2_1,genecov.p=pchisq((res$rhog/rrhog33.jack)^2,df=1,lower.tail = F),h2I.p=pchisq((res$h2_1/h2_133.jack)^2,df=1,lower.tail = F),h2g.p=pchisq((res$h2_2/h2_233.jack)^2,df=1,lower.tail = F)))
+    cov_rrhog_h2I <- cov(rrhog,h2_1)*length(x1)^2*n.block*C^3
+    return(list(genecov=res$rhog*C,rho=res$rho*C,h2I=res$h2_1*C^2,h2g=res$h2_2,genecov.se=rrhog33.jack,rho.se=rrho33.jack,h2I.se=h2_133.jack,h2g.se=h2_233.jack,cov_rrhog_h2I=cov_rrhog_h2I,genecov.p=pchisq((res$rhog/rrhog33.jack)^2,df=1,lower.tail = F),h2I.p=pchisq((res$h2_1/h2_133.jack)^2,df=1,lower.tail = F),h2g.p=pchisq((res$h2_2/h2_233.jack)^2,df=1,lower.tail = F)))
   }
 
 
@@ -167,8 +167,8 @@ bivariate_ldsc <- function(bivariate_stats,N1,N2,NS=min(N1,N2),size_num=200,R2=0
     rrho33.jack <- sd(rrho)*sqrt(n.block)*C
     h2_133.jack <- sd(h2_1)*sqrt(n.block)*length(x1)*C^2
     h2_233.jack <- sd(h2_2)*sqrt(n.block)*length(x1)
-    cov_rrhog_h2_1 <- cov(rrhog,h2_1)*length(x1)^2*n.block*C^3
-    return(list(genecov=res$rhog*C,rho=res$rho*C,h2I=res$h2_1*C^2,h2g=res$h2_2,genecov.se=rrhog33.jack,rho.se=rrho33.jack,h2I.se=h2_133.jack,h2g.se=h2_233.jack,cov_rrhog_h2_1=cov_rrhog_h2_1,genecov.p=pchisq((res$rhog/rrhog33.jack)^2,df=1,lower.tail = F),h2I.p=pchisq((res$h2_1/h2_133.jack)^2,df=1,lower.tail = F),h2g.p=pchisq((res$h2_2/h2_233.jack)^2,df=1,lower.tail = F)))
+    cov_rrhog_h2I <- cov(rrhog,h2_1)*length(x1)^2*n.block*C^3
+    return(list(genecov=res$rhog*C,rho=res$rho*C,h2I=res$h2_1*C^2,h2g=res$h2_2,genecov.se=rrhog33.jack,rho.se=rrho33.jack,h2I.se=h2_133.jack,h2g.se=h2_233.jack,cov_rrhog_h2I=cov_rrhog_h2I,genecov.p=pchisq((res$rhog/rrhog33.jack)^2,df=1,lower.tail = F),h2I.p=pchisq((res$h2_1/h2_133.jack)^2,df=1,lower.tail = F),h2g.p=pchisq((res$h2_2/h2_233.jack)^2,df=1,lower.tail = F)))
 }
 
 
@@ -176,9 +176,9 @@ bivariate_ldsc <- function(bivariate_stats,N1,N2,NS=min(N1,N2),size_num=200,R2=0
 test_bivariate_GE <- function(bivariate_result,options="BVN"){
   if(! options %in% c("Fisher","BVN","All")){
     stop('Please specify the correct test options: "Fisher" or "BVN" or "All"') }
-  c=bivariate_result$cov_rrhog_h2_1
-  a11=bivariate_result$h2_1.sd^2
-  a22=bivariate_result$genecov.sd^2
+  c=bivariate_result$cov_rrhog_h2I
+  a11=bivariate_result$h2I.se^2
+  a22=bivariate_result$genecov.se^2
   estimates=c(bivariate_result$h2_1,bivariate_result$genecov)
   S=matrix(c(a11,c,c,a22),2,2)
   EI=eigen(S)
@@ -355,15 +355,15 @@ bivariate_lder_correct <- function(trivariate_stats,N1,N2,N3,size_num=200,R2=0,p
   
   rrhog33.jack <- sd(rho_Ig_correct_blocks)*sqrt(n.block)*length(x1)*C
   h2_133.jack <- sd(h2_correct_blocks)*sqrt(n.block)*length(x1)*C^2
-  cov_rrhog_h2_1 <- cov(rho_Ig_correct_blocks,h2_correct_blocks)*length(x1)^2*n.block*C^3
+  cov_rrhog_h2I <- cov(rho_Ig_correct_blocks,h2_correct_blocks)*length(x1)^2*n.block*C^3
   rrhogGIE.jack <- sd(rrhog_Ie)*sqrt(n.block)*length(x1)*C
   
   
   h2_1_corrected = (res$h2_1-2*res2$rhog^2)*C^2
   rho_Ig_corrected = res$rhog*C - res2$rhog*res3$rhog*C 
   
-  if(print_GIE==T){return(list(genecov=rho_Ig_corrected,h2I=h2_1_corrected,genecov.se=rrhog33.jack,h2I.se=h2_133.jack,cov_rrhog_h2_1=cov_rrhog_h2_1,genecov.p=pchisq((rho_Ig_corrected/rrhog33.jack)^2,df=1,lower.tail = F),h2I.p=pchisq((h2_1_corrected/h2_133.jack)^2,df=1,lower.tail = F),gcov_IE=res2$rhog*C,gcov_IE.se=rrhogGIE.jack,gcov_IE.p=pchisq((res2$rhog*C/rrhogGIE.jack)^2,df=1,lower.tail = F)))}
-  return(list(genecov=rho_Ig_corrected,h2I=h2_1_corrected,genecov.se=rrhog33.jack,h2I.se=h2_133.jack,cov_rrhog_h2_1=cov_rrhog_h2_1,genecov.p=pchisq((rho_Ig_corrected/rrhog33.jack)^2,df=1,lower.tail = F),h2I.p=pchisq((h2_1_corrected/h2_133.jack)^2,df=1,lower.tail = F)))
+  if(print_GIE==T){return(list(genecov=rho_Ig_corrected,h2I=h2_1_corrected,genecov.se=rrhog33.jack,h2I.se=h2_133.jack,cov_rrhog_h2I=cov_rrhog_h2I,genecov.p=pchisq((rho_Ig_corrected/rrhog33.jack)^2,df=1,lower.tail = F),h2I.p=pchisq((h2_1_corrected/h2_133.jack)^2,df=1,lower.tail = F),gcov_IE=res2$rhog*C,gcov_IE.se=rrhogGIE.jack,gcov_IE.p=pchisq((res2$rhog*C/rrhogGIE.jack)^2,df=1,lower.tail = F)))}
+  return(list(genecov=rho_Ig_corrected,h2I=h2_1_corrected,genecov.se=rrhog33.jack,h2I.se=h2_133.jack,cov_rrhog_h2I=cov_rrhog_h2I,genecov.p=pchisq((rho_Ig_corrected/rrhog33.jack)^2,df=1,lower.tail = F),h2I.p=pchisq((h2_1_corrected/h2_133.jack)^2,df=1,lower.tail = F)))
 }
 
 
@@ -413,15 +413,15 @@ bivariate_ldsc_correct <- function(trivariate_stats,N1,N2,N3,size_num=200,R2=0,p
   
   rrhog33.jack <- sd(rho_Ig_correct_blocks)*sqrt(n.block)*length(x1)*C
   h2_133.jack <- sd(h2_correct_blocks)*sqrt(n.block)*length(x1)*C^2
-  cov_rrhog_h2_1 <- cov(rho_Ig_correct_blocks,h2_correct_blocks)*length(x1)^2*n.block*C^3
+  cov_rrhog_h2I <- cov(rho_Ig_correct_blocks,h2_correct_blocks)*length(x1)^2*n.block*C^3
   rrhogGIE.jack <- sd(rrhog_Ie)*sqrt(n.block)*length(x1)*C
   
   
   h2_1_corrected = (res$h2_1-2*res2$rhog^2)*C^2
   rho_Ig_corrected = res$rhog*C - res2$rhog*res3$rhog*C 
 
-  if(print_GIE==T){return(list(genecov=rho_Ig_corrected,h2I=h2_1_corrected,genecov.se=rrhog33.jack,h2I.se=h2_133.jack,cov_rrhog_h2_1=cov_rrhog_h2_1,genecov.p=pchisq((rho_Ig_corrected/rrhog33.jack)^2,df=1,lower.tail = F),h2I.p=pchisq((h2_1_corrected/h2_133.jack)^2,df=1,lower.tail = F),gcov_IE=res2$rhog*C,gcov_IE.se=rrhogGIE.jack,gcov_IE.p=pchisq((res2$rhog*C/rrhogGIE.jack)^2,df=1,lower.tail = F)))}
-  return(list(genecov=rho_Ig_corrected,h2I=h2_1_corrected,genecov.se=rrhog33.jack,h2I.se=h2_133.jack,cov_rrhog_h2_1=cov_rrhog_h2_1,genecov.p=pchisq((rho_Ig_corrected/rrhog33.jack)^2,df=1,lower.tail = F),h2I.p=pchisq((h2_1_corrected/h2_133.jack)^2,df=1,lower.tail = F)))
+  if(print_GIE==T){return(list(genecov=rho_Ig_corrected,h2I=h2_1_corrected,genecov.se=rrhog33.jack,h2I.se=h2_133.jack,cov_rrhog_h2I=cov_rrhog_h2I,genecov.p=pchisq((rho_Ig_corrected/rrhog33.jack)^2,df=1,lower.tail = F),h2I.p=pchisq((h2_1_corrected/h2_133.jack)^2,df=1,lower.tail = F),gcov_IE=res2$rhog*C,gcov_IE.se=rrhogGIE.jack,gcov_IE.p=pchisq((res2$rhog*C/rrhogGIE.jack)^2,df=1,lower.tail = F)))}
+  return(list(genecov=rho_Ig_corrected,h2I=h2_1_corrected,genecov.se=rrhog33.jack,h2I.se=h2_133.jack,cov_rrhog_h2I=cov_rrhog_h2I,genecov.p=pchisq((rho_Ig_corrected/rrhog33.jack)^2,df=1,lower.tail = F),h2I.p=pchisq((h2_1_corrected/h2_133.jack)^2,df=1,lower.tail = F)))
 }
 
 

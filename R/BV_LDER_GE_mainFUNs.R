@@ -25,19 +25,18 @@ runBV_LDER_GE <- function(assoc_gwis, assoc_gwas, n.gwis, n.gwas, n.overlap=NULL
   bivariate_stats <- extract_stats(C,assoc=assoc1,assoc2=assoc2,assoc3=NULL,ldpath=ldpath,ldpath.shrink=ldpath.shrink,n.ld=n.ld,impute_missing=F)
   N1=n.gwis
   N2=n.gwas
-  Ns=ifelse(is.null(n.overlap),min(n.gwis,n.gwas),n.overlap)
+  NS=ifelse(is.null(n.overlap),min(n.gwis,n.gwas),n.overlap)
   if(method=='lder'){
-    res <- bivariate_lder(bivariate_stats,N1,N2,NS=min(N1,N2),size_num=size_num)
+    res <- bivariate_lder(bivariate_stats,N1,N2,NS=NS,size_num=size_num)
     bitest=test_bivariate_GE(res,"BVN")
-    print(res)
     return(list(lder = res, BV_test_lder = bitest))
   }else if(method=='ldsc'){
-    res <- bivariate_ldsc(bivariate_stats,N1,N2,NS=min(N1,N2),size_num=size_num)
+    res <- bivariate_ldsc(bivariate_stats,N1,N2,NS=NS,size_num=size_num)
     bitest=test_bivariate_GE(res,"BVN")
     return(list(ldsc = res, BV_test_ldsc = bitest))
   }else if(method=='both'){
-    res1 <- bivariate_lder(bivariate_stats,N1,N2,NS=min(N1,N2),size_num=size_num)
-    res2 <- bivariate_ldsc(bivariate_stats,N1,N2,NS=min(N1,N2),size_num=size_num)
+    res1 <- bivariate_lder(bivariate_stats,N1,N2,NS=NS,size_num=size_num)
+    res2 <- bivariate_ldsc(bivariate_stats,N1,N2,NS=NS,size_num=size_num)
     bitest1=test_bivariate_GE(res1,"BVN")
     bitest2=test_bivariate_GE(res2,"BVN")
     return(list(lder=res1,ldsc=res2, BV_test_lder = bitest1, BV_test_ldsc = bitest2))
