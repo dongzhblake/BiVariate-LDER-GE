@@ -20,7 +20,7 @@ calRg.new<-function(x1, x2, ldsc, N1, N2, Ns=min(N1, N2)){
   rhoNs <- coeff[[2]]*sqrt(N1*N2)
   rhog <- coeff[[1]]*M/sqrt(N1*N2)
   rg<- rhog/sqrt(h2est1*h2est2)
-  return(list(rhog=rhog, rg=rg, rho=rhoNs/Ns, h2I=h2est11, h2g=h2est22))
+  return(list(rhog=rhog, rg=rg, rho=rhoNs/Ns, h2_1=h2est11, h2_2=h2est22))
 }
 
 calRg <- function(z1, z2, ldsc, N1, N2, Ns=min(N1, N2)){
@@ -44,7 +44,7 @@ calRg <- function(z1, z2, ldsc, N1, N2, Ns=min(N1, N2)){
   rhoNs <- coeff[[2]]*sqrt(N1*N2)
   rhog <- coeff[[1]]*M/sqrt(N1*N2)
   rg<- rhog/sqrt(h2est1*h2est2)
-  return(list(rhog=rhog, rg=rg, rho=rhoNs/Ns, h2I=h2est11, h2g=h2est22))
+  return(list(rhog=rhog, rg=rg, rho=rhoNs/Ns, h2_1=h2est11, h2_2=h2est22))
 }
 
 
