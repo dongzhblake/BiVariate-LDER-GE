@@ -9,7 +9,7 @@ runBV_LDER_GE(
   assoc_gwas,
   n.gwis,
   n.gwas,
-  n.overlap,
+  n.overlap = NULL,
   path,
   LD.insample = T,
   n.ld,
@@ -19,24 +19,28 @@ runBV_LDER_GE(
 )
 }
 \arguments{
-\item{n.gwas}{The sample size of the GWAS summary statistics}
+\item{assoc_gwis}{GWIS (GE interaction effect) summary statistics, need to include snp, chr, a0, a1, z (header is necessary)}
+
+\item{n.gwis}{The sample size of the GWIS (GE interaction effect) summary statistics}
+
+\item{n.gwas}{The sample size of the GWAS (additive genetic effect) summary statistics}
+
+\item{n.overlap}{The overlap sample size between GWIS and GWAS, default to min(n.gwis, n.gwas)}
 
 \item{path}{The path of LD panel directory}
 
-\item{LD.insample}{T/F, whether the LD reference is estimated with the GWAS cohort (T) or external reference panel (e.g. 1000 Genome Project) (F)}
+\item{LD.insample}{T/F, whether the LD reference is estimated with target cohort (T) or external reference panel (e.g. 1000 Genome Project) (F)}
 
 \item{n.ld}{The sample size of the LD reference}
 
 \item{method}{'lder', 'ldsc', or 'both'}
 
-\item{type}{if 'jack' then conducts delete-wise block jackknife. if 'none' then does not do inference}
-
 \item{size_num}{Number of blocks for jackknife}
 
-\item{assoc}{GWIS summary statistics, need to include snp, chr, a0, a1, z (header is necessary)}
+\item{assoc_gwss}{GWAS (additive genetic effect) summary statistics, need to include snp, chr, a0, a1, z (header is necessary)}
 
 \item{cores}{The number of cores for computation in parallel}
 }
 \description{
-Run LDER-GE
+Run BVLDER-GE
 }
