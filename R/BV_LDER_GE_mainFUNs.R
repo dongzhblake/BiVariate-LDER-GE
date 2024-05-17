@@ -29,6 +29,7 @@ runBV_LDER_GE <- function(assoc_gwis, assoc_gwas, n.gwis, n.gwas, n.overlap=NULL
   if(method=='lder'){
     res <- bivariate_lder(bivariate_stats,N1,N2,NS=min(N1,N2),size_num=size_num)
     bitest=test_bivariate_GE(res,"BVN")
+    print(res)
     return(list(lder = res, BV_test_lder = bitest))
   }else if(method=='ldsc'){
     res <- bivariate_ldsc(bivariate_stats,N1,N2,NS=min(N1,N2),size_num=size_num)
