@@ -2,6 +2,7 @@
 
 export(generateLD)
 export(runBV_LDER_GE)
+export(runBV_LDER_GE_adj)
 export(runLDER_GE)
 import(data.table)
 import(stats)
