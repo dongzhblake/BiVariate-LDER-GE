@@ -8,14 +8,13 @@
 #' @param path The path of LD panel directory
 #' @param LD.insample T/F, whether the LD reference is estimated with target cohort (T) or external reference panel (e.g. 1000 Genome Project) (F)
 #' @param n.ld The sample size of the LD reference
-#' @param cores The number of cores for computation in parallel
 #' @param method 'lder', 'ldsc', or 'both'
 #' @param size_num Number of blocks for jackknife
 #' @import  data.table stats utils
 #' @export
 #'
 #'
-runBV_LDER_GE <- function(assoc_gwis, assoc_gwas, n.gwis, n.gwas, n.overlap=NULL, path, LD.insample=T,  n.ld,method='lder', type='jack',size_num=200){
+runBV_LDER_GE <- function(assoc_gwis, assoc_gwas, n.gwis, n.gwas, n.overlap=NULL, path, LD.insample=T,  n.ld,method='lder',size_num=200){
   library(parallel)
   refo_sts=format_sumstats(assoc_gwis,assoc_gwas)
   assoc1=refo_sts$assoc;assoc2=refo_sts$assoc2
