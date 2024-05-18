@@ -84,7 +84,7 @@ define_block_unit <- function(size_num=200,mj,sizedf){
   sizes_perb=c(sizes_perb,length(grouped_block))
   return(return(grouped_block))}
 
-bivariate_do.jack <- function(bivariate_stats,j,N1,N2,NS=min(N1,N2)){
+bivariate_do.jack <- function(bivariate_stats,j,N1,N2,NS){
   bivariate_stats <- bivariate_stats[-j]
   x1 <- unlist(sapply(bivariate_stats,'[[',1))
   lam <- unlist(sapply(bivariate_stats,'[[',5))
@@ -95,7 +95,7 @@ bivariate_do.jack <- function(bivariate_stats,j,N1,N2,NS=min(N1,N2)){
   res$h2_2 <- res$h2_2/length(x1)
   return(res)}
 
-bivariate_do.jack.ldsc <- function(bivariate_stats,j,N1,N2,NS=min(N1,N2)){
+bivariate_do.jack.ldsc <- function(bivariate_stats,j,N1,N2,NS){
   bivariate_stats <- bivariate_stats[-j]
   x1 <- unlist(sapply(bivariate_stats,'[[',2))
   lam <- unlist(sapply(bivariate_stats,'[[',6))
@@ -107,7 +107,7 @@ bivariate_do.jack.ldsc <- function(bivariate_stats,j,N1,N2,NS=min(N1,N2)){
   return(res)}
 
 
-bivariate_lder <- function(bivariate_stats,N1,N2,NS=min(N1,N2),size_num=200,R2=0){
+bivariate_lder <- function(bivariate_stats,N1,N2,NS,size_num=200,R2=0){
   C=sqrt(1-R2)
   temp1 <- unlist(lapply(bivariate_stats,length))
   bivariate_stats[temp1==1] <- NULL
@@ -121,7 +121,7 @@ bivariate_lder <- function(bivariate_stats,N1,N2,NS=min(N1,N2),size_num=200,R2=0
     pb <- txtProgressBar(0,length(grouped_block),style=3)
     temp1.jack=list()
     print("Estimating SE with delete-block-jackknife")
-    for(t in 1:length(grouped_block)){temp1.jack=append(temp1.jack,list(bivariate_do.jack(bivariate_stats=bivariate_stats,j=grouped_block[[t]],N1=N1,N2=N2,NS=min(N1,N2))))
+    for(t in 1:length(grouped_block)){temp1.jack=append(temp1.jack,list(bivariate_do.jack(bivariate_stats=bivariate_stats,j=grouped_block[[t]],N1=N1,N2=N2,NS)))
     setTxtProgressBar(pb, t)}
     print("delete-block-jackknife done")
     close(pb)
@@ -140,7 +140,7 @@ bivariate_lder <- function(bivariate_stats,N1,N2,NS=min(N1,N2),size_num=200,R2=0
 
 
 
-bivariate_ldsc <- function(bivariate_stats,N1,N2,NS=min(N1,N2),size_num=200,R2=0){
+bivariate_ldsc <- function(bivariate_stats,N1,N2,NS,size_num=200,R2=0){
   C=sqrt(1-R2)
   temp1 <- unlist(lapply(bivariate_stats,length))
   bivariate_stats[temp1==1] <- NULL
@@ -154,7 +154,7 @@ bivariate_ldsc <- function(bivariate_stats,N1,N2,NS=min(N1,N2),size_num=200,R2=0
     pb <- txtProgressBar(0,length(grouped_block),style=3)
     temp1.jack=list()
     print("Estimating SE with delete-block-jackknife")
-    for(t in 1:length(grouped_block)){temp1.jack=append(temp1.jack,list(bivariate_do.jack.ldsc(bivariate_stats=bivariate_stats,j=grouped_block[[t]],N1=N1,N2=N2,NS=min(N1,N2))))
+    for(t in 1:length(grouped_block)){temp1.jack=append(temp1.jack,list(bivariate_do.jack.ldsc(bivariate_stats=bivariate_stats,j=grouped_block[[t]],N1=N1,N2=N2,NS)))
     setTxtProgressBar(pb, t)}
     print("delete-block-jackknife done")
     close(pb)
@@ -240,74 +240,6 @@ bivariate_do.jackge1 <- function(bivariate_stats,j,N1,N2,NS=min(N1,N2)){
   res$h2_1 <- res$h2_1/length(x1)
   res$h2_2 <- res$h2_2/length(x1)
   return(res)}
-
-lderge_correct <- function(bivariate_stats,N1,N2,size_num=200,R2=0){
-  # the bivariate_stats includes the GWIS for Y and GWAS for E
-  C=sqrt(1-R2)
-  temp1 <- unlist(lapply(bivariate_stats,length))
-  bivariate_stats[temp1==1] <- NULL
-  x1 <- unlist(sapply(bivariate_stats,'[[',1))
-  lam <- unlist(sapply(bivariate_stats,'[[',5))
-  x2 <- unlist(sapply(bivariate_stats,'[[',3))
-  res2 <- calRg.new(x1, x2, lam, N1, N3, Ns=min(N1, N3))
-  res2$rhog=res2$rhog/(1+res2$h2_2)
-
-  mj=sapply(1:length(bivariate_stats),FUN=function(x)(length(bivariate_stats[[x]]$ldsc)))
-  sizedf=as.data.frame(cbind(mj,1:length(bivariate_stats)))
-  grouped_block=define_block_unit(size_num=size_num,mj=mj,sizedf=sizedf)
-  n.block <- length(grouped_block)
-  pb <- txtProgressBar(0,length(grouped_block),style=3)
-  temp2.jack=list()
-  print("Estimating SE with delete-block-jackknife")
-  for(t in 1:length(grouped_block)){
-    temp2.jack=append(temp2.jack,list(bivariate_do.jackIe(bivariate_stats=bivariate_stats,j=grouped_block[[t]],N1,N3,NS=min(N1,N3))))
-    setTxtProgressBar(pb, t)}
-  print("delete-block-jackknife done")
-  close(pb)
-  h2_1 <- unlist(sapply(temp2.jack,'[[','h2_1'))
-  rrhog_Ie <-  unlist(sapply(temp2.jack,'[[','rhog'))
-
-  h2_correct_blocks = h2_1 - 2*rrhog_Ie^2
-  h2_133.jack <- sd(h2_correct_blocks)*sqrt(n.block)*length(x1)*C^2
-  h2_1_corrected = (res$h2_1-2*res2$rhog^2)*C^2
-
-  return(list(h2I=h2_1_corrected,h2I.se=h2_133.jack,h2I.p=pchisq((h2_1_corrected/h2_133.jack)^2,df=1,lower.tail = F)))
-}
-
-
-ldscge_correct <- function(bivariate_stats,N1,N2,size_num=200,R2=0){
-  # the bivariate_stats includes the GWIS for Y and GWAS for E
-  C=sqrt(1-R2)
-  temp1 <- unlist(lapply(bivariate_stats,length))
-  bivariate_stats[temp1==1] <- NULL
-  x1 <- unlist(sapply(bivariate_stats,'[[',2))
-  lam <- unlist(sapply(bivariate_stats,'[[',6))
-  x2 <- unlist(sapply(bivariate_stats,'[[',4))
-  res2 <- calRg(x1, x2, lam, N1, N3, Ns=min(N1, N3))
-  res2$rhog=res2$rhog/(1+res2$h2_2)
-  
-  mj=sapply(1:length(bivariate_stats),FUN=function(x)(length(bivariate_stats[[x]]$ldsc)))
-  sizedf=as.data.frame(cbind(mj,1:length(bivariate_stats)))
-  grouped_block=define_block_unit(size_num=size_num,mj=mj,sizedf=sizedf)
-  n.block <- length(grouped_block)
-  pb <- txtProgressBar(0,length(grouped_block),style=3)
-  temp2.jack=list()
-  print("Estimating SE with delete-block-jackknife")
-  for(t in 1:length(grouped_block)){
-    temp2.jack=append(temp2.jack,list(bivariate_do.jackIe1(bivariate_stats=bivariate_stats,j=grouped_block[[t]],N1,N2,NS=min(N1,N2))))
-    setTxtProgressBar(pb, t)}
-  print("delete-block-jackknife done")
-  close(pb)
-  h2_1 <- unlist(sapply(temp2.jack,'[[','h2_1'))
-  rrhog_Ie <-  unlist(sapply(temp2.jack,'[[','rhog'))
-  
-  h2_correct_blocks = h2_1 - 2*rrhog_Ie^2
-  h2_133.jack <- sd(h2_correct_blocks)*sqrt(n.block)*length(x1)*C^2
-  h2_1_corrected = (res$h2_1-2*res2$rhog^2)*C^2
-  
-  return(list(h2I=h2_1_corrected,h2I.se=h2_133.jack,h2I.p=pchisq((h2_1_corrected/h2_133.jack)^2,df=1,lower.tail = F)))
-}  
-
 
 bivariate_lder_correct <- function(trivariate_stats,N1,N2,N3,size_num=200,R2=0,print_GIE=F){
   C=sqrt(1-R2)
@@ -426,6 +358,76 @@ bivariate_ldsc_correct <- function(trivariate_stats,N1,N2,N3,size_num=200,R2=0,p
 
 
 
+
+
+
+
+lderge_correct <- function(bivariate_stats,N1,N2,size_num=200,R2=0){
+  # the bivariate_stats includes the GWIS for Y and GWAS for E
+  C=sqrt(1-R2)
+  temp1 <- unlist(lapply(bivariate_stats,length))
+  bivariate_stats[temp1==1] <- NULL
+  x1 <- unlist(sapply(bivariate_stats,'[[',1))
+  lam <- unlist(sapply(bivariate_stats,'[[',5))
+  x2 <- unlist(sapply(bivariate_stats,'[[',3))
+  res2 <- calRg.new(x1, x2, lam, N1, N3, Ns=min(N1, N3))
+  res2$rhog=res2$rhog/(1+res2$h2_2)
+  
+  mj=sapply(1:length(bivariate_stats),FUN=function(x)(length(bivariate_stats[[x]]$ldsc)))
+  sizedf=as.data.frame(cbind(mj,1:length(bivariate_stats)))
+  grouped_block=define_block_unit(size_num=size_num,mj=mj,sizedf=sizedf)
+  n.block <- length(grouped_block)
+  pb <- txtProgressBar(0,length(grouped_block),style=3)
+  temp2.jack=list()
+  print("Estimating SE with delete-block-jackknife")
+  for(t in 1:length(grouped_block)){
+    temp2.jack=append(temp2.jack,list(bivariate_do.jackIe(bivariate_stats=bivariate_stats,j=grouped_block[[t]],N1,N3,NS=min(N1,N3))))
+    setTxtProgressBar(pb, t)}
+  print("delete-block-jackknife done")
+  close(pb)
+  h2_1 <- unlist(sapply(temp2.jack,'[[','h2_1'))
+  rrhog_Ie <-  unlist(sapply(temp2.jack,'[[','rhog'))
+  
+  h2_correct_blocks = h2_1 - 2*rrhog_Ie^2
+  h2_133.jack <- sd(h2_correct_blocks)*sqrt(n.block)*length(x1)*C^2
+  h2_1_corrected = (res$h2_1-2*res2$rhog^2)*C^2
+  
+  return(list(h2I=h2_1_corrected,h2I.se=h2_133.jack,h2I.p=pchisq((h2_1_corrected/h2_133.jack)^2,df=1,lower.tail = F)))
+}
+
+
+ldscge_correct <- function(bivariate_stats,N1,N2,size_num=200,R2=0){
+  # the bivariate_stats includes the GWIS for Y and GWAS for E
+  C=sqrt(1-R2)
+  temp1 <- unlist(lapply(bivariate_stats,length))
+  bivariate_stats[temp1==1] <- NULL
+  x1 <- unlist(sapply(bivariate_stats,'[[',2))
+  lam <- unlist(sapply(bivariate_stats,'[[',6))
+  x2 <- unlist(sapply(bivariate_stats,'[[',4))
+  res2 <- calRg(x1, x2, lam, N1, N3, Ns=min(N1, N3))
+  res2$rhog=res2$rhog/(1+res2$h2_2)
+  
+  mj=sapply(1:length(bivariate_stats),FUN=function(x)(length(bivariate_stats[[x]]$ldsc)))
+  sizedf=as.data.frame(cbind(mj,1:length(bivariate_stats)))
+  grouped_block=define_block_unit(size_num=size_num,mj=mj,sizedf=sizedf)
+  n.block <- length(grouped_block)
+  pb <- txtProgressBar(0,length(grouped_block),style=3)
+  temp2.jack=list()
+  print("Estimating SE with delete-block-jackknife")
+  for(t in 1:length(grouped_block)){
+    temp2.jack=append(temp2.jack,list(bivariate_do.jackIe1(bivariate_stats=bivariate_stats,j=grouped_block[[t]],N1,N2,NS=min(N1,N2))))
+    setTxtProgressBar(pb, t)}
+  print("delete-block-jackknife done")
+  close(pb)
+  h2_1 <- unlist(sapply(temp2.jack,'[[','h2_1'))
+  rrhog_Ie <-  unlist(sapply(temp2.jack,'[[','rhog'))
+  
+  h2_correct_blocks = h2_1 - 2*rrhog_Ie^2
+  h2_133.jack <- sd(h2_correct_blocks)*sqrt(n.block)*length(x1)*C^2
+  h2_1_corrected = (res$h2_1-2*res2$rhog^2)*C^2
+  
+  return(list(h2I=h2_1_corrected,h2I.se=h2_133.jack,h2I.p=pchisq((h2_1_corrected/h2_133.jack)^2,df=1,lower.tail = F)))
+}  
 
 
 
