@@ -20,14 +20,14 @@ runLDER_GE <- function(assoc, n.gwas, path, LD.insample=T,  n.ld,method='lder', 
   print("matching summary statistics with LD panel")
   stats <- mclapply(0:C,get.stats,assoc=assoc,ldpath=ldpath,ldpath.shrink=ldpath.shrink,mc.cores=cores,n.ld=n.ld)
   if(method=='lder'){
-    res <- lder(stats=stats,n.gwas=n.gwas,a=NULL,rough=!LD.insample,cores=cores,twostage=!LD.insample,type=type)
+    res <- lder(stats=stats,n.gwas=n.gwas,a=NULL,rough=!LD.insample,cores=cores,twostage=!LD.insample,type=type, size_num=size_num)
     return(res)
   }else if(method=='ldsc'){
-    res <- ldsc(stats=stats,n.gwas=n.gwas,a=NULL,cores=cores,twostage=F,type=type)
+    res <- ldsc(stats=stats,n.gwas=n.gwas,a=NULL,cores=cores,twostage=F,type=type, size_num=size_num)
     return(res)
   }else if(method=='both'){
-    res1 <- lder(stats=stats,n.gwas=n.gwas,a=NULL,rough=!LD.insample,cores=cores,twostage=!LD.insample,type=type)
-    res2 <- ldsc(stats=stats,n.gwas=n.gwas,a=NULL,cores=cores,twostage=F,type=type)
+    res1 <- lder(stats=stats,n.gwas=n.gwas,a=NULL,rough=!LD.insample,cores=cores,twostage=!LD.insample,type=type, size_num=size_num)
+    res2 <- ldsc(stats=stats,n.gwas=n.gwas,a=NULL,cores=cores,twostage=F,type=type, size_num=size_num)
     return(list(lder=res1,ldsc=res2))
   }
 }
