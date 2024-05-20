@@ -26,13 +26,11 @@ runBV_LDER_GE(
 
 \item{n.gwas}{The sample size of the GWAS (additive genetic effect) summary statistics}
 
-\item{n.overlap}{The overlap sample size between GWIS and GWAS, default to min(n.gwis, n.gwas)}
-
 \item{path}{The path of LD panel directory}
 
 \item{LD.insample}{T/F, whether the LD reference is estimated with target cohort (T) or external reference panel (e.g. 1000 Genome Project) (F)}
 
-\item{n.ld}{The sample size of the LD reference}
+\item{n.ld}{The sample size of the LD reference panel}
 
 \item{method}{'lder', 'ldsc', or 'both'}
 
