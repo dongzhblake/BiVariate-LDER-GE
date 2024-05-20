@@ -30,17 +30,17 @@ runBV_LDER_GE_adj <- function(assoc_gwis_Y, assoc_gwas_Y, assoc_gwas_E, n.gwis_Y
   if(method=='lder'){
     res <- bivariate_lder_correct(trivariate_stats,N1,N2,N3,size_num=size_num,R2)
     bitest=test_bivariate_GE(res,"BVN")
-    return(list(lder = res, BV_test_lder = bitest))
+    return(list(lder = res, lder.BV_test = bitest))
   }else if(method=='ldsc'){
     res <- bivariate_ldsc_correct(trivariate_stats,N1,N2,N3,size_num=size_num,R2)
     bitest=test_bivariate_GE(res,"BVN")
-    return(list(ldsc = res, BV_test_ldsc = bitest))
+    return(list(ldsc = res, ldsc.BV_test = bitest))
   }else if(method=='both'){
     res1 <- bivariate_lder_correct(trivariate_stats,N1,N2,N3,size_num=size_num,R2)
     res2 <- bivariate_ldsc_correct(trivariate_stats,N1,N2,N3,size_num=size_num,R2)
     bitest1=test_bivariate_GE(res1,"BVN")
     bitest2=test_bivariate_GE(res2,"BVN")
-    return(list(lder=res1,ldsc=res2, BV_test_lder = bitest1, BV_test_ldsc = bitest2))
+    return(list(lder=res1,ldsc=res2, lder.BV_test = bitest1, ldsc.BV_test = bitest2))
   }
 }
 
