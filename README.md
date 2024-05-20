@@ -1,29 +1,30 @@
-# LDER-GE
-We propose a statistical method to estimate the phenotypic variance explained by Gene-Envieonment interactions. The method is called  Linkage-Disequilibrium Eigenvalue Regression for Gene-Environment interactions (LDER-GE). LDER-GE extends existing LDSC-based methods to incorporate full LD information and enhances statistical efficiency of estimation.
+# BV-LDER-GE
+We propose a novel statistical method to study the genome-level Gene-Environment interaction effects using human complex trait summary statistics: BiVariate Linkage-Disequilibrium Eigenvalue Regression for Gene-Environment interactions (BV-LDER-GE). The major contribution of BV-LDER-GE comes from two aspects: joint modeling and testing of GxE interaction variance and the genetic covariance between additive genetic effect and GxE interaction effect (GxE genetic covariance); more accurate estimation of the GxE genetic covariance utilizing full LD information. 
 
 :open_book: Citation:
 
-Dong, Z., Jiang, W., Li, H., Dewan, A. T., & Zhao, H. (2023). LDER-GE estimates phenotypic variance component of gene-environment interactions in human complex traits accurately with GE interaction summary statistics and full LD information. bioRxiv, 2023-11.
+To be added.
 
-Acknowledgement: LDER-GE package is forked based on the original LDER package. If you are studying narrow-sense heritability, please use and refer to https://github.com/shuangsong0110/LDER). We modified the function calling procedure and adjusted the algorithm specifically for GE interaction analysis. For LD preparation, we largely maintain the original LDER framework.
-We thank Shuang Song for sharing the original LDER code.
+Acknowledgement: BV-LDER-GE package is changed based on the original LDER package. If you are studying narrow-sense heritability, please use and refer to https://github.com/shuangsong0110/LDER). We thank Shuang Song for sharing the original LDER code.
 
 ## Table of contents
 * [Install and LD preparation](#hammer-install-and-ld-preparation)
-* [Estimation of GE proportion](#rocket-estimation-of-ge-proportion)
+* [Run BV-LDER-GE main function](#rocket-run-bv-lder-ge-main-function)
 * [Output](#bulb-output)
 * [A Simplified Pipeline](#key-a-simplified-pipeline)
+* [Run BV-LDER-GE-adj function to adjust for the genetic effect of E](#key-run-bv-lder-ge-adj-function-to-adjust-for-the-genetic-effect-of-e)
 
+  
 ## :hammer: Install and LD preparation
-LDER-GE R package requires R >= 3.5.0 and Python 3.6.
-LDER-GE can be installed using the command:
+BV-LDER-GE R package requires R >= 3.5.0 and Python 3.6.
+BV-LDER-GE can be installed using the command:
 ```r
-devtools::install_github('dongzhblake/LDER-GE')
+devtools::install_github('dongzhblake/BiVariate-LDER-GE')
 ```
 
-We provide a function `plinkLD.py` for efficient LD information extraction and shrinkage based on Python. Users could either specify their own LD reference files with plink bfile format (.bim, .fam, .bed), or use the pre-computed LD information. When studying UKBB or any Biobank-scale dataset, we suggest use in-sample LD panel for better estimatuon results. Two examples are given below.
+ For precise estimation, we recommend using in-sample LD or LD sample with higher number of sample sizes such as UKBB. Below we provide two pre-computed LD information using UKBB European ancestry. We include functions to calculate your own in-sample LD. For a detailed LD reference panel preparation please refer to https://github.com/dongzhblake/LDER-GE?tab=readme-ov-file#hammer-install-and-ld-preparation.
 
-### Example 1: Use the pre-computed LD information
+### Use the pre-computed LD information
 
 The pre-computed LD information for 396,330 hapmap3 variants from 276,050 UK Biobank European individuals can be manually downloaded from [https://drive.google.com/file/d/1mvDA79qPAoPXUjmUC1BQw-tInklZ4gPD/view?usp=drive_link](https://drive.google.com/file/d/1CCGil-ZnXourrk5JFJeqyEKIzLCvX2vh/view?usp=drive_link)
 
@@ -35,95 +36,74 @@ After downloading, decompress the files:
 
 `unzip UKB966kvariant_hm3.zip`
 
-:exclamation: NOTE: Please keep the download path the SAME with that used in function `runLDER_GE`.
-
-
-### Example 2: Use plink bfile as the input
-The 1000 Genome Project reference panel (hg19) can be downloaded by:
-
-`wget https://zenodo.org/record/7768714/files/1000G_Phase3_plinkfiles.tgz?download=1`
-
-`tar -xvzf 1000G_Phase3_plinkfiles.tgz`
-
-
-```r
-library(LDERGE)
-generateLD(assoc=GWAS_SUMMARY_STATISTICS (required), 
-          path=OUTPUT_DIR (required),
-          bfile_path=PATH_TO_LD_REFERENCE (required),
-          cores=NUMBER_OF_CORES (optional),
-          ethnic=ETHNIC (optional),
-          plink_path=PATH_TO_PLINK_SOFTWARE (optional),
-          python_path=PATH_TO_PYTHON_SOFTWARE (optional))                    
-```
-- GWAS_SUMMARY_STATISTICS (required): GWAS summary statistics, need to include `snp`, `chr`, `a0`, `a1`, `z` (header names are necessary)
-
-- OUTPUT_DIR (required): The output path
-
-- PATH_TO_LD_REFERENCE (required): The LD reference plink bfile. If the files are divided into chromosomes, the function should be run for each of the file.
-
-- NUMBER_OF_CORES (optional): The number of cores for computation in parallel.
-
-- ETHNIC (optional): Ethnic of the GWAS cohort; 'eur' for European ancestry.
-
-- PATH_TO_PLINK_SOFTWARE (optional): The path to the plink software. If not specified, the function will use the default path (system("which plink"))
-
-- PATH_TO_PYTHON_SOFTWARE (optional): The path to the python software. If not specified, the function will use the default path (system("which python"))
-
-Note: The function will automatically download and install plinkLD functions. If it does not work, the packages can also be downloaded with `wget -O plinkLD.zip https://cloud.tsinghua.edu.cn/f/7c002e9b9539450182ef/?dl=1 --no-check-certificate` 
-
-
-## :rocket: Estimation of GE proportion
+## :rocket: Run BV-LDER-GE main function
 The main funcion can be run with:
 
 ```r
-runLDER_GE(assoc=GWAS_SUMMARY_STATISTICS (required), 
-	n.gwas=SAMPLE_SIZE_OF_GWAS (required), 
-	path=OUTPUT_DIR (required),
-	LD.insample=IN_SAMPLE_LD (T/F, required),
-	n.ld=SAMPLE_SIZE_OF_LD_REF (required), 
-	method=METHOD (default='lder')
-	cores=NUMBER_OF_CORES (optional))
+runBV_LDER_GE(assoc_gwis,
+assoc_gwas,
+n.gwis,
+n.gwas,
+path,
+n.ld,
+method)
+
 ```
-- GWAS_SUMMARY_STATISTICS (required): GWAS summary statistics, need to include `snp`, `chr`, `a0`, `a1`, `z` (header is necessary)
+- assoc_gwis GWIS (GE interaction effect) summary statistics, need to include snp, chr, a0, a1, z (header is necessary)
 
-- n.gwas (required): The sample size of the GWAS summary statistics
+- assoc_gwas GWAS (additive genetic effect) summary statistics, need to include snp, chr, a0, a1, z (header is necessary)
+  
+- n.gwis The sample size of the GWIS (GE interaction effect) summary statistics
+  
+- n.gwas The sample size of the GWAS (additive genetic effect) summary statistics
 
-- OUTPUT_DIR (required): The output path (Note that the path should be SAME with that used in function `generateLD`)
+- path The path of LD panel directory
 
-- IN_SAMPLE_LD (required): T/F, whether the LD reference is estimated with the GWAS cohort (T) or external reference panel (e.g. 1000 Genome Project: F)
+- n.ld The sample size of the LD reference panel
 
-- SAMPLE_SIZE_OF_LD_REF (required): The sample size of the LD reference (e.g., 276,050 for 396K UKBB variants; 307,259 for 966K UKBB variants, 489 for 1000G)
-
-- METHOD (optional): Default='lder'. We also provide a choice of 'both', which outputs the results for both LDER and LDSC.
-
-- NUMBER_OF_CORES (optional): The number of cores for computation in parallel.
-
-
+- method (optional): Default='lder'. We also provide a choice of 'both', which outputs the results for both LDER and LDSC.
 
 
 ## :bulb: Output
 
-If `method='lder'`, the `runLDER_GE` function returns a list with 5 elements:
+If `method='lder'`, the `runBV_LDER_GE` function returns a list with 10 elements:
 
-`h2I`: Estimated GE proportion by LDER-GE
+`genecov`: Estimated GxE genetic covariance
 
-`h2I.se`: The standard error of estimated GE proportion with block-jackknife.
+`h2I`: Estimated GxE proportion
 
-`h2I.p`: The P value for testing the estimated GE proportion.
+`h2g`: Estimated narrow-sense heritability
 
-`intecept`: Estimated intercept by LDER-GE
+`genecov.se`: The standard error of estimated GxE genetic covariance with block-jackknife.
 
-`intecept.se`: The standard error of estimated intercept with block-jackknife.
+`h2I.se`: The standard error of estimated GxE proportion with block-jackknife.
 
-If `method='both'`, the `runLDER` function returns a list containing the results of both LDER-GE and LDSC-based methods.
+`h2g.se`: The standard error of estimated narrow-sense heritability with block-jackknife.
+
+`genecov.p`: The P value for testing the estimated GxE genetic covariance.
+
+`h2I.p`: The P value for testing the estimated GxE proportion.
+
+`h2g.p`: The P value for testing the estimated narrow-sense heritability.
+
+`lder.BV_test`: The P value for the joint modeling test of the GxE genetic covariance and GxE proportion (Still test test GxE proportion).
+
+If `method='both'`, the `runBV_LDER_GE` function returns a list containing the results of both LDER-GE and LDSC-based methods.
 
 
 ## :key: A Simplified Pipeline
-Download a sample GWIS summary statistics at [https://drive.google.com/file/d/1W1zaoOS3ob0dzSvJL9p2f4kdKUmgW5Ff/view?usp=drive_link](https://drive.google.com/file/d/1LSkzmfZo36WtiIpXBu0Cfw8iA4VwDss7/view?usp=sharing)
+Download a sample GWIS (GxE interaction sumstats) summary statistics at 
+
+https://drive.google.com/file/d/1GoULJNPVHVsOR2dv_4JpaC5eaGOeVxMA/view?usp=drive_link
+
+Download a sample GWAS (additive genetic effect sumstats) summary statistics at 
+
+https://drive.google.com/file/d/1ZYefklTqBvCxkoBkrEl3Q-rimGjhloKu/view?usp=drive_link
 
 
-Download the pre-computed LD information for 396,330 hapmap3 variants from 276,050 UK Biobank European individuals from [https://drive.google.com/file/d/1mvDA79qPAoPXUjmUC1BQw-tInklZ4gPD/view?usp=drive_link](https://drive.google.com/file/d/1mvDA79qPAoPXUjmUC1BQw-tInklZ4gPD/view?usp=drive_link)
+Download the pre-computed LD information for 396,330 hapmap3 variants from 276,050 UK Biobank European individuals at
+
+https://drive.google.com/file/d/1mvDA79qPAoPXUjmUC1BQw-tInklZ4gPD/view?usp=drive_link
 
 
 `unzip UKB396kvariant_hm3.zip`
@@ -132,33 +112,89 @@ Download the pre-computed LD information for 396,330 hapmap3 variants from 276,0
 Run with R:
 
 ```r
-devtools::install_github('dongzhblake/LDER-GE')
-library(LDERGE)
+devtools::install_github('dongzhblake/BiVariate-LDER-GE')
+library(BVLDERGE)
 library(data.table)
 path0 <- "UKB396kvariant_hm3" # the complete system path to this LD folder
 assoc <- fread('LDER_GE_exampleGWIS.txt')
-# The whole process of runLDER_GE is going to take a few minutes depending on the number of cores of the computer.
-# If a higher number of cores are available, the parallel input of summary statistis will be faster.
-res <- runLDER_GE(assoc, n.gwas=median(assoc$n), path=path0, n.ld=276050, cores=10, method='lder')
-The true simulation GE proportion is 0.05 generated using 50000 UKBB subjects and 20000 effective variants.
-> res
-$h2I
-[1] 0.0519347
+assoc_gwis <- fread('BV_LDER_GE_exampleGWIS.txt')
+assoc_gwas <- fread('BV_LDER_GE_exampleGWAS.txt')
+n.gwis = median(assoc_gwis$n)
+n.gwas = median(assoc_gwas$n)
 
-$intecept
-[1] 1.143381
+res=runBV_LDER_GE(assoc_gwis, assoc_gwas, n.gwis, n.gwas, path = path0,  n.ld=276050 ,method='both')
 
-$h2I.se
-[1] 0.007510239
-
-$h2I.p
-[1] 4.672499e-12
-
-$intecept.se
-[1] 0.005513937
+> unlist(res)
+lder.genecov           lder.h2I           lder.h2g    lder.genecov.se 
+5.569623e-02       1.071866e-01       8.660379e-02       6.902761e-03 
+lder.h2I.se        lder.h2g.se lder.cov_rrhog_h2I     lder.genecov.p 
+9.046920e-03       8.844408e-03       2.741344e-05       7.105664e-16 
+lder.h2I.p         lder.h2g.p       ldsc.genecov           ldsc.h2I 
+2.207742e-32       1.219501e-22       5.778562e-02       1.076898e-01 
+ldsc.h2g    ldsc.genecov.se        ldsc.h2I.se        ldsc.h2g.se 
+8.037813e-02       8.228211e-03       1.156984e-02       1.035050e-02 
+ldsc.cov_rrhog_h2I     ldsc.genecov.p         ldsc.h2I.p         ldsc.h2g.p 
+4.356295e-05       2.173623e-12       1.305036e-20       8.124193e-15 
+lder.BV_test       ldsc.BV_test
+2.025652e-33       1.229271e-21 
 
 ```
 
+## :key: Run BV-LDER-GE-adj function to adjust for the genetic effect of E
+
+Download a sample GWIS (GxE interaction sumstats) summary statistics of Y at 
+
+https://drive.google.com/file/d/1SvQZqHu-K8QNLaeuVPydsoNAOmIRjn7S/view?usp=drive_link
+
+Download a sample GWAS (additive genetic effect sumstats) summary statistics  of Y at 
+
+https://drive.google.com/file/d/15U0P1GvvG42h3f4VLqJZd8tglhW2gaxC/view?usp=drive_link
+
+Download a sample GWAS (additive genetic effect sumstats) summary statistics  of E at 
+
+https://drive.google.com/file/d/1YjzrCTezLLA0VyxNATpBMG9If_2st6Iw/view?usp=drive_link
+
+Download the pre-computed LD information for 396,330 hapmap3 variants from 276,050 UK Biobank European individuals at
+
+https://drive.google.com/file/d/1mvDA79qPAoPXUjmUC1BQw-tInklZ4gPD/view?usp=drive_link
+
+
+`unzip UKB396kvariant_hm3.zip`
+
+
+Run with R:
+
+```r
+devtools::install_github('dongzhblake/BiVariate-LDER-GE')
+library(BVLDERGE)
+library(data.table)
+path0 <- "UKB396kvariant_hm3" # the complete system path to this LD folder
+assoc_gwis_Y <- fread('BV_LDER_GE_example_adj_GWIS_Y.txt')
+assoc_gwas_Y <- fread('BV_LDER_GE_example_adj_GWAS_Y.txt')
+assoc_gwas_E <- fread('BV_LDER_GE_example_adj_GWAS_E.txt')
+n.gwis_Y = median(assoc_gwis_Y$n)
+n.gwas_Y = median(assoc_gwas_Y$n)
+n.gwas_E = median(assoc_gwas_E$n)
+
+res=runBV_LDER_GE_adj(assoc_gwis_Y, assoc_gwas_Y,assoc_gwas_E, n.gwis_Y, n.gwas_Y, n.gwas_E, path0,  n.ld=276050 ,method='both')
+
+
+> unlist(res)
+lder.genecov           lder.h2I    lder.genecov.se        lder.h2I.se 
+-8.669521e-03       8.185539e-02       8.533855e-03       8.825768e-03 
+lder.cov_rrhog_h2I     lder.genecov.p         lder.h2I.p       lder.gcov_IE 
+-1.048700e-05       3.096782e-01       1.783005e-20       1.066853e-01 
+lder.gcov_IE.se     lder.gcov_IE.p       ldsc.genecov           ldsc.h2I 
+8.504955e-03       4.293074e-36      -7.798517e-03       9.876998e-02 
+ldsc.genecov.se        ldsc.h2I.se ldsc.cov_rrhog_h2I     ldsc.genecov.p 
+1.090945e-02       1.112378e-02      -2.508875e-05       4.747077e-01 
+ldsc.h2I.p       ldsc.gcov_IE    ldsc.gcov_IE.se     ldsc.gcov_IE.p 
+6.736042e-19       1.048404e-01       1.057090e-02       3.482327e-23 
+lder.BV_test       ldsc.BV_test 
+2.016574e-19       3.937359e-18
+
+The output is largely the same with BV-LDER-GE main function, but the output of genecov and h2I are adjusted for the genetic effect of E.
+There are three new output about gcov_IE term: the GxE genetic covariance between the addtive genetic effect of E and GxE interaction effect of Y. If gcov_IE is tested positive, then we suggest make adjustment. If gcov_IE is not tested positive, we suggest the unadjusted result from BV-LDER-GE for better estimation quality.
 
 ## :busts_in_silhouette: Maintainer
 
